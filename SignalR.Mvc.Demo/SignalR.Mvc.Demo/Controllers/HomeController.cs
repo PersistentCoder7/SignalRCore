@@ -6,16 +6,20 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using SignalR.Mvc.Demo.Hubs;
 
 namespace SignalR.Mvc.Demo.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHubContext<WeatherHub> _weatherHubContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHubContext<WeatherHub> weatherHubContext)
         {
             _logger = logger;
+            _weatherHubContext = weatherHubContext;
         }
 
         public IActionResult Index()
@@ -23,8 +27,10 @@ namespace SignalR.Mvc.Demo.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public async Task<IActionResult> Privacy()
         {
+            string v = $"Privacy page was visitied at {DateTime.Now}";
+            await _weatherHubContext.Clients.All.SendAsync("Broadcast", v);
             return View();
         }
 
